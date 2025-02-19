@@ -1,13 +1,17 @@
-import './App.css'
+import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Home } from "./pages/home";
+import { Chat } from "./pages/chat";
 
 function App() {
-
   return (
-    <>
-      <h1>Hello World. girls on the block</h1>
-      <p>Whereas disregard and contempt for human rights have resulted</p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="/app" element={<Chat />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
