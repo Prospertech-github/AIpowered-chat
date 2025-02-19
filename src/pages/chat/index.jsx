@@ -36,6 +36,7 @@ const Chat = () => {
   const [aidetectedLanguage, setAiDetectedLanguage] = useState(null);
   const [detector, setDetector] = useState(null);
   const [translatedLanguage, setTranslatedLanguage] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
 
   function displayMessage(e) {
     e.preventDefault();
@@ -69,8 +70,7 @@ const Chat = () => {
       }
       setDetector(detectorInstance);
     }
-    checkLanguageDetectorAI()
-    
+    checkLanguageDetectorAI();
   }, []);
 
   useEffect(() => {
@@ -79,42 +79,61 @@ const Chat = () => {
 
       try {
         const results = await detector.detect(submittedMessage);
-        console.log(results);
-
         const highestConfidence = results.reduce(
           (max, result) => (result.confidence > max.confidence ? result : max),
           results[0]
         );
 
         const { detectedLanguage, confidence } = highestConfidence;
-
-        console.log(
-          `This is ${(confidence * 100).toFixed(1)}% of ${detectedLanguage}`
-        );
-        console.log(`${languageTagToHumanReadable(detectedLanguage, "en")}`);
-
         setAiDetectedLanguage({
           detectedLanguage,
           languageValue: languageTagToHumanReadable(detectedLanguage, "en"),
           confidence: (confidence * 100).toFixed(1),
         });
       } catch (error) {
-        console.log(error);
+        console.error(`Detection error: ${error}`);
       }
     }
     detectMessageLanguage();
   }, [submittedMessage, detector]);
 
   useEffect(() => {
-    async function translateLanguage() {
-      // Create a translator that translates from English to French.
-      const translator = await self.ai.translator.create({
-        sourceLanguage: "en",
-        targetLanguage: "fr",
-      });
+    async function translateMessage() {
+      if (!submittedMessage || !translatedLanguage || !aidetectedLanguage)
+        return;
+
+      try {
+        const translatorCapabilities = await self.ai.translator.capabilities();
+        const isSupported = translatorCapabilities.languagePairAvailable(
+          aidetectedLanguage.detectedLanguage,
+          translatedLanguage
+        );
+
+        if (!isSupported) {
+          console.error("Translation not supported for this language pair.");
+          return;
+        }
+
+        const translator = await self.ai.translator.create({
+          sourceLanguage: aidetectedLanguage.detectedLanguage,
+          targetLanguage: translatedLanguage,
+        });
+        console.log("Detected language:", aidetectedLanguage?.detectedLanguage);
+        console.log("Creating translator with:", {
+          source: aidetectedLanguage.detectedLanguage,
+          target: translatedLanguage,
+        });
+
+        const translation = await translator.translate(
+          submittedMessage
+        );
+        setTranslatedText(translation);
+      } catch (error) {
+        console.error(error);
+      }
     }
-    translateLanguage()
-  }, []);
+    translateMessage();
+  }, [translatedLanguage, submittedMessage]);
 
   const languageTagToHumanReadable = (languageTag, targetLanguage) => {
     const displayNames = new Intl.DisplayNames([targetLanguage], {
@@ -152,6 +171,8 @@ const Chat = () => {
               </p>
             )}
 
+            <p>{translatedText}</p>
+
             {submittedMessage && (
               <div className={styles.translateArea}>
                 <p>Translate to: </p>
@@ -161,7 +182,9 @@ const Chat = () => {
                   onChange={(e) => setTranslatedLanguage(e.target.value)}
                 >
                   {languages.map((language) => (
-                    <option value={language.value} key={language.value}>{language.name}</option>
+                    <option value={language.value} key={language.value}>
+                      {language.name}
+                    </option>
                   ))}
                 </select>
               </div>
