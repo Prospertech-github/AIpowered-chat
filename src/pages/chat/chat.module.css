@@ -38,7 +38,6 @@ main{
     height: 100%;
     display: flex;
     align-items: center;
-    gap: 3.2rem;
     flex-direction: column-reverse;
 }
 .inputArea textarea{
@@ -71,6 +70,9 @@ form > button{
     border-radius: 5px;
     font-size: 1.6rem;
     font-weight: 600;
+}
+form > button:focus{
+    outline: none;
 }
 .displayArea{
     font-size: 1.6rem;
@@ -119,4 +121,97 @@ form > button{
 }
 .translateTextArea > .translatedText{
     color: var(--chat-white);
+}
+
+
+@media screen and (max-width: 640px) {
+    .header{
+        padding: 0 1rem;
+    }
+    .header img{
+        width: 14rem;
+        height: 8rem;
+    }
+    .header a{
+        padding: 1rem 1.4rem;
+        font-size: 1.6rem;
+    }
+    main{
+        height: calc(100vh - 7rem);
+        padding: 2rem;
+    }
+    .inputArea{
+        gap: 3.2rem;
+        flex-direction: column-reverse;
+    }
+    .inputArea textarea{
+        height: 3.5rem;
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 400;
+        padding: 1rem;
+    }
+    form{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+    }
+    .formArea{
+        width: 100%;
+    }
+    form > button{
+        color: var(--chat-white);
+        background-color: var(--chat-logo);
+        padding: 1.2rem 2.4rem;
+        border-radius: 5px;
+        font-size: 1.5rem;
+        font-weight: 500;
+    }
+    .displayArea{
+        font-size: 1.5rem;
+        width: 85%;
+        border-radius: 5px;
+        padding: .5rem 0;
+    }
+
+    .submittedMessage{
+        font-weight: 500;
+        font-size: 1.6rem;
+        padding: 0rem .8rem;
+    }
+    .languageDetect{
+        font-size: 1.4rem;
+        font-weight: 300;
+        padding: 0rem .8rem;
+        margin: .3rem 0;
+    }
+    .translateArea{
+        padding: 0rem .8rem;
+        gap: 4rem;
+        font-size: 1.4rem;
+        margin-top: 1.2rem;
+    }
+
+    .translateArea > p:nth-of-type(1){
+        font-size: 1.4rem;
+    }
+
+    .translateArea > select{
+        font-size: 1.4rem;
+        border: none;
+        padding: 0 .5rem;
+    }
+    .translateTextArea{
+        padding: 0 .8rem;
+        margin-bottom: 2rem;
+    }
+    .translateTextArea > p:nth-of-type(2){
+        font-size: 1.4rem;
+        color: var(--chat-puprle);
+    }
+    .translateTextArea > .translatedText{
+        color: var(--chat-white);
+    }
+
 }

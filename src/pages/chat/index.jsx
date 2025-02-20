@@ -146,7 +146,7 @@ const Chat = () => {
         );
 
         console.log(isSupported);
-        
+
         if (!isSupported) {
           console.error("Translation not supported for this language pair.");
           return;
@@ -187,16 +187,19 @@ const Chat = () => {
 
       <main>
         <div className={styles.inputArea}>
-          <form onSubmit={displayMessage}>
-            <textarea
-              name="message"
-              id="message"
-              placeholder="Enter your message here"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            ></textarea>
-            <button type="submit"> Send </button>
-          </form>
+          <div className={styles.formArea}>
+            <form onSubmit={displayMessage}>
+              <textarea
+                name="message"
+                id="message"
+                placeholder="Enter your message here"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              ></textarea>
+              <button type="submit"> Send </button>
+            </form>
+
+          </div>
 
           {submittedMessage && (
             <div className={styles.displayArea}>
