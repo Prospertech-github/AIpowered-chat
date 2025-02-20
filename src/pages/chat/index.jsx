@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./chat.module.css";
 import { Logo } from "../../assets";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const languages = [
   {
@@ -40,7 +41,11 @@ const Chat = () => {
 
   function displayMessage(e) {
     e.preventDefault();
+    
+    if(!message) toast.error('Empty message field. Kindly input a message')
+      
     setSubmittedMessage(message);
+    setMessage("")
   }
 
   useEffect(() => {
@@ -133,7 +138,6 @@ const Chat = () => {
     detectMessageLanguage();
   }, [submittedMessage, detector]);
 
-  useEffect(() => {
     async function translateMessage() {
       if (!submittedMessage || !translatedLanguage || !aidetectedLanguage)
         return;
@@ -168,8 +172,6 @@ const Chat = () => {
         console.error(error);
       }
     }
-    translateMessage();
-  }, [translatedLanguage, submittedMessage]);
 
   const languageTagToHumanReadable = (languageTag, targetLanguage) => {
     const displayNames = new Intl.DisplayNames([targetLanguage], {
@@ -235,7 +237,12 @@ const Chat = () => {
                   ))}
                 </select>
               </div>
+              <div className={styles.btnArea}>
+                <button>Summarize</button>
+                <button onClick={translateMessage}>Translate</button>
+              </div>
             </div>
+
           )}
         </div>
       </main>

@@ -39,6 +39,7 @@ main{
     display: flex;
     align-items: center;
     flex-direction: column-reverse;
+    gap: 3.2rem;
 }
 .inputArea textarea{
     height: 6rem;
@@ -122,6 +123,26 @@ form > button:focus{
 .translateTextArea > .translatedText{
     color: var(--chat-white);
 }
+.btnArea{
+    padding: 1.6rem 2rem 0rem;
+    display: flex;
+    gap: 2rem;
+}
+.btnArea button{
+    padding: 1rem 1.2rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    color: var(--chat-logo);
+}
+.btnArea button:nth-of-type(2){
+    color: var(--chat-white);
+    background-color: var(--chat-logo);
+}
+.btnArea button:focus{
+    outline: none;
+}
 
 
 @media screen and (max-width: 640px) {
@@ -178,6 +199,7 @@ form > button:focus{
     .submittedMessage{
         font-weight: 500;
         font-size: 1.6rem;
+        line-height: 1.5;
         padding: 0rem .8rem;
     }
     .languageDetect{

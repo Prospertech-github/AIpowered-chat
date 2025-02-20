@@ -30,6 +30,7 @@ html{
 
 a{
   text-decoration: none;
+  cursor: pointer;
 }
 
 ul,ol{
@@ -44,7 +45,9 @@ img{
 p{
   font-size: 1.8rem;
 }
-
+ button{
+  cursor: pointer;
+ }
 
 /* @media (prefers-color-scheme: light) {
   :root {
