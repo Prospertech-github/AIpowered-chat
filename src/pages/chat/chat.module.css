@@ -137,7 +137,7 @@ form > button:focus{
         font-size: 1.6rem;
     }
     main{
-        height: calc(100vh - 7rem);
+        height: calc(100vh - 9rem);
         padding: 2rem;
     }
     .inputArea{
