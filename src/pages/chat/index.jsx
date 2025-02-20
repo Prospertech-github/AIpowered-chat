@@ -44,6 +44,44 @@ const Chat = () => {
   }
 
   useEffect(() => {
+    async function checkSummarizerCapabilities() {
+      let summarizer;
+      try {
+        if (!("ai" in self) || !("summarizer" in self.ai)) {
+          console.error("AI Summarizer API is not available in this environment.");
+          return;
+        }
+  
+        const capabilities = await self.ai.summarizer.capabilities();
+        console.log("Summarizer capabilities:", capabilities);
+  
+        if (capabilities.available === "no") {
+          console.error("Summarizer API is not available.");
+          summarizer = await self.ai.summarizer.create({
+            monitor(m) {
+              m.addEventListener("downloadprogress", (e) => {
+                console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
+              });
+            },
+          });
+
+          console.log('trying to download')
+        }
+  
+        // If available, initialize it
+        summarizer = await self.ai.summarizer.create();
+        await summarizer.ready;
+        console.log("Summarizer is ready to use!");
+      } catch (error) {
+        console.error("Error checking Summarizer capabilities:", error);
+      }
+    }
+  
+    checkSummarizerCapabilities();
+  }, []);
+  
+
+  useEffect(() => {
     async function checkLanguageDetectorAI() {
       const languageDetectorCapabilities =
         await self.ai.languageDetector.capabilities();
@@ -55,10 +93,8 @@ const Chat = () => {
       }
 
       if (canDetect === "readily") {
-        // The language detector can immediately be used.
         detectorInstance = await self.ai.languageDetector.create();
       } else {
-        // The language detector can be used after model download.
         detectorInstance = await self.ai.languageDetector.create({
           monitor(m) {
             m.addEventListener("downloadprogress", (e) => {
@@ -109,6 +145,8 @@ const Chat = () => {
           translatedLanguage
         );
 
+        console.log(isSupported);
+        
         if (!isSupported) {
           console.error("Translation not supported for this language pair.");
           return;
@@ -124,9 +162,7 @@ const Chat = () => {
           target: translatedLanguage,
         });
 
-        const translation = await translator.translate(
-          submittedMessage
-        );
+        const translation = await translator.translate(submittedMessage);
         setTranslatedText(translation);
       } catch (error) {
         console.error(error);
@@ -162,18 +198,26 @@ const Chat = () => {
             <button type="submit"> Send </button>
           </form>
 
-          <div className={styles.displayArea}>
-            <p className={styles.submittedMessage}> {submittedMessage} </p>
-            {aidetectedLanguage && (
-              <p className={styles.languageDetect}>
-                This is {aidetectedLanguage.confidence}% of{" "}
-                {aidetectedLanguage.languageValue}
-              </p>
-            )}
+          {submittedMessage && (
+            <div className={styles.displayArea}>
+              <p className={styles.submittedMessage}> {submittedMessage} </p>
+              {aidetectedLanguage && (
+                <p className={styles.languageDetect}>
+                  This is {aidetectedLanguage.confidence}% of{" "}
+                  {aidetectedLanguage.languageValue}
+                </p>
+              )}
 
-            <p>{translatedText}</p>
+              {translatedText && (
+                <div className={styles.translateTextArea}>
+                  <p className={styles.translatedText}>{translatedText}</p>
+                  <p>
+                    (Translated from {aidetectedLanguage.languageValue} to{" "}
+                    {languageTagToHumanReadable(translatedLanguage, "en")})
+                  </p>
+                </div>
+              )}
 
-            {submittedMessage && (
               <div className={styles.translateArea}>
                 <p>Translate to: </p>
                 <select
@@ -188,8 +232,8 @@ const Chat = () => {
                   ))}
                 </select>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

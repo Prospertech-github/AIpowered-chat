@@ -73,26 +73,26 @@ form > button{
     font-weight: 600;
 }
 .displayArea{
-    width: 100%;
     font-size: 1.6rem;
     width: 50%;
-    border: 2px solid red;
     align-self: flex-end;
+    background-color: var(--chat-grey);
+    border-radius: 10px;
+    padding: 1rem 0;
 }
 .submittedMessage{
     font-weight: 500;
     font-size: 2rem;
-    padding: .5rem 2rem;
+    padding: 0rem 2rem;
 }
 .languageDetect{
     font-size: 1.5rem;
     font-weight: 300;
     color: var(--chat-puprle);
     padding: 0rem 2rem;
-    margin: 1rem 0;
+    margin: .5rem 0;
 }
 .translateArea{
-    border: 2px solid green;
     padding: 0rem 2rem;
     display: flex;
     gap: 2rem;
@@ -108,4 +108,15 @@ form > button{
 }
 .translateArea > select:focus{
     outline: none;
+}
+.translateTextArea{
+    padding: 0 2rem;
+    margin-bottom: 2rem;
+}
+.translateTextArea > p:nth-of-type(2){
+    font-size: 1.4rem;
+    color: var(--chat-puprle);
+}
+.translateTextArea > .translatedText{
+    color: var(--chat-white);
 }
