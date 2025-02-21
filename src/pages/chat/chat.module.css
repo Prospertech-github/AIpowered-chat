@@ -145,6 +145,11 @@ form > button:focus{
 .btnArea button:focus{
     outline: none;
 }
+.translationLoading{
+    padding: 1rem 2rem;
+    color: var(--chat-logo);
+    font-weight: 300;
+}
 
 
 @media screen and (max-width: 640px) {
@@ -236,6 +241,9 @@ form > button:focus{
     }
     .translateTextArea > .translatedText{
         color: var(--chat-white);
+    }
+    .translationLoading{
+        padding: .5rem .8rem;
     }
 
 }

@@ -41,13 +41,22 @@ const Chat = () => {
 
   // Custome Hooks
   const { summarizeText, summarizedText, loading } = useSummarizer();
-  const {aidetectedLanguage, detectMessageLanguage, languageTagToHumanReadable} = useDetector();
-  const {translatedText, translateText, resetTranslation} = useTranslate()
+  const {
+    aidetectedLanguage,
+    detectMessageLanguage,
+    languageTagToHumanReadable,
+  } = useDetector();
+  const {
+    translatedText,
+    translationLoading,
+    translateText,
+    resetTranslation,
+  } = useTranslate();
 
-  useEffect(()=>{
-    detectMessageLanguage(submittedMessage)
-    resetTranslation()
-  },[submittedMessage])
+  useEffect(() => {
+    detectMessageLanguage(submittedMessage);
+    resetTranslation();
+  }, [submittedMessage]);
 
   function displayMessage(e) {
     e.preventDefault();
@@ -90,13 +99,15 @@ const Chat = () => {
                 </p>
               )}
 
-              {translatedText && (
+              {translationLoading ? (
+                <p className={styles.translationLoading}>Translation loading...</p>
+              ) : translatedText ? (
                 <TranslatedText
                   text={translatedText}
                   from={aidetectedLanguage.languageValue}
                   to={languageTagToHumanReadable(translatedLanguage, "en")}
                 />
-              )}
+              ) : null}
 
               {summarizedText && <SummarizedText text={summarizedText} />}
 
@@ -121,7 +132,17 @@ const Chat = () => {
                 >
                   {loading ? "Summarizing" : "Summarize"}
                 </button>
-                <button onClick={()=> translateText(submittedMessage,  aidetectedLanguage.detectedLanguage, translatedLanguage)}>Translate</button>
+                <button
+                  onClick={() =>
+                    translateText(
+                      submittedMessage,
+                      aidetectedLanguage.detectedLanguage,
+                      translatedLanguage
+                    )
+                  }
+                >
+                  Translate
+                </button>
               </div>
             </div>
           )}
@@ -145,8 +166,6 @@ const TranslatedText = ({ text, from, to }) => (
 const SummarizedText = ({ text }) => (
   <div className={styles.translateTextArea}>
     <p className={styles.translatedText}>{text}</p>
-    <p>
-      Summarized version of your message
-    </p>
+    <p>Summarized version of your message</p>
   </div>
 );
