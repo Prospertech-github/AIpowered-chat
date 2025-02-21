@@ -3,6 +3,9 @@ import styles from "./chat.module.css";
 import { Logo } from "../../assets";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import useSummarizer from "../../hooks/useSummarizer";
+import useDetector from "../../hooks/useDetector";
+import useTranslate from "../../hooks/useTranslate";
 
 const languages = [
   {
@@ -34,151 +37,26 @@ const languages = [
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [submittedMessage, setSubmittedMessage] = useState("");
-  const [aidetectedLanguage, setAiDetectedLanguage] = useState(null);
-  const [detector, setDetector] = useState(null);
-  const [translatedLanguage, setTranslatedLanguage] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
+  const [translatedLanguage, setTranslatedLanguage] = useState("en");
+
+  // Custome Hooks
+  const { summarizeText, summarizedText, loading } = useSummarizer();
+  const {aidetectedLanguage, detectMessageLanguage, languageTagToHumanReadable} = useDetector();
+  const {translatedText, translateText, resetTranslation} = useTranslate()
+
+  useEffect(()=>{
+    detectMessageLanguage(submittedMessage)
+    resetTranslation()
+  },[submittedMessage])
 
   function displayMessage(e) {
     e.preventDefault();
-    
-    if(!message) toast.error('Empty message field. Kindly input a message')
-      
+
+    if (!message) toast.error("Empty message field. Kindly input a message");
+
     setSubmittedMessage(message);
-    setMessage("")
+    setMessage("");
   }
-
-  useEffect(() => {
-    async function checkSummarizerCapabilities() {
-      let summarizer;
-      try {
-        if (!("ai" in self) || !("summarizer" in self.ai)) {
-          console.error("AI Summarizer API is not available in this environment.");
-          return;
-        }
-  
-        const capabilities = await self.ai.summarizer.capabilities();
-        console.log("Summarizer capabilities:", capabilities);
-  
-        if (capabilities.available === "no") {
-          console.error("Summarizer API is not available.");
-          summarizer = await self.ai.summarizer.create({
-            monitor(m) {
-              m.addEventListener("downloadprogress", (e) => {
-                console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
-              });
-            },
-          });
-
-          console.log('trying to download')
-        }
-  
-        // If available, initialize it
-        summarizer = await self.ai.summarizer.create();
-        await summarizer.ready;
-        console.log("Summarizer is ready to use!");
-      } catch (error) {
-        console.error("Error checking Summarizer capabilities:", error);
-      }
-    }
-  
-    checkSummarizerCapabilities();
-  }, []);
-  
-
-  useEffect(() => {
-    async function checkLanguageDetectorAI() {
-      const languageDetectorCapabilities =
-        await self.ai.languageDetector.capabilities();
-      const canDetect = languageDetectorCapabilities.capabilities;
-      let detectorInstance;
-
-      if (canDetect === "no") {
-        return;
-      }
-
-      if (canDetect === "readily") {
-        detectorInstance = await self.ai.languageDetector.create();
-      } else {
-        detectorInstance = await self.ai.languageDetector.create({
-          monitor(m) {
-            m.addEventListener("downloadprogress", (e) => {
-              console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
-            });
-          },
-        });
-        await detectorInstance.ready;
-      }
-      setDetector(detectorInstance);
-    }
-    checkLanguageDetectorAI();
-  }, []);
-
-  useEffect(() => {
-    async function detectMessageLanguage() {
-      if (!detector || !submittedMessage) return;
-
-      try {
-        const results = await detector.detect(submittedMessage);
-        const highestConfidence = results.reduce(
-          (max, result) => (result.confidence > max.confidence ? result : max),
-          results[0]
-        );
-
-        const { detectedLanguage, confidence } = highestConfidence;
-        setAiDetectedLanguage({
-          detectedLanguage,
-          languageValue: languageTagToHumanReadable(detectedLanguage, "en"),
-          confidence: (confidence * 100).toFixed(1),
-        });
-      } catch (error) {
-        console.error(`Detection error: ${error}`);
-      }
-    }
-    detectMessageLanguage();
-  }, [submittedMessage, detector]);
-
-    async function translateMessage() {
-      if (!submittedMessage || !translatedLanguage || !aidetectedLanguage)
-        return;
-
-      try {
-        const translatorCapabilities = await self.ai.translator.capabilities();
-        const isSupported = translatorCapabilities.languagePairAvailable(
-          aidetectedLanguage.detectedLanguage,
-          translatedLanguage
-        );
-
-        console.log(isSupported);
-
-        if (!isSupported) {
-          console.error("Translation not supported for this language pair.");
-          return;
-        }
-
-        const translator = await self.ai.translator.create({
-          sourceLanguage: aidetectedLanguage.detectedLanguage,
-          targetLanguage: translatedLanguage,
-        });
-        console.log("Detected language:", aidetectedLanguage?.detectedLanguage);
-        console.log("Creating translator with:", {
-          source: aidetectedLanguage.detectedLanguage,
-          target: translatedLanguage,
-        });
-
-        const translation = await translator.translate(submittedMessage);
-        setTranslatedText(translation);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-  const languageTagToHumanReadable = (languageTag, targetLanguage) => {
-    const displayNames = new Intl.DisplayNames([targetLanguage], {
-      type: "language",
-    });
-    return displayNames.of(languageTag);
-  };
 
   return (
     <div>
@@ -200,7 +78,6 @@ const Chat = () => {
               ></textarea>
               <button type="submit"> Send </button>
             </form>
-
           </div>
 
           {submittedMessage && (
@@ -214,14 +91,14 @@ const Chat = () => {
               )}
 
               {translatedText && (
-                <div className={styles.translateTextArea}>
-                  <p className={styles.translatedText}>{translatedText}</p>
-                  <p>
-                    (Translated from {aidetectedLanguage.languageValue} to{" "}
-                    {languageTagToHumanReadable(translatedLanguage, "en")})
-                  </p>
-                </div>
+                <TranslatedText
+                  text={translatedText}
+                  from={aidetectedLanguage.languageValue}
+                  to={languageTagToHumanReadable(translatedLanguage, "en")}
+                />
               )}
+
+              {summarizedText && <SummarizedText text={summarizedText} />}
 
               <div className={styles.translateArea}>
                 <p>Translate to: </p>
@@ -238,11 +115,15 @@ const Chat = () => {
                 </select>
               </div>
               <div className={styles.btnArea}>
-                <button>Summarize</button>
-                <button onClick={translateMessage}>Translate</button>
+                <button
+                  onClick={() => summarizeText(submittedMessage)}
+                  disabled={loading}
+                >
+                  {loading ? "Summarizing" : "Summarize"}
+                </button>
+                <button onClick={()=> translateText(submittedMessage,  aidetectedLanguage.detectedLanguage, translatedLanguage)}>Translate</button>
               </div>
             </div>
-
           )}
         </div>
       </main>
@@ -251,3 +132,21 @@ const Chat = () => {
 };
 
 export { Chat };
+
+const TranslatedText = ({ text, from, to }) => (
+  <div className={styles.translateTextArea}>
+    <p className={styles.translatedText}>{text}</p>
+    <p>
+      (Translated from {from} to {to})
+    </p>
+  </div>
+);
+
+const SummarizedText = ({ text }) => (
+  <div className={styles.translateTextArea}>
+    <p className={styles.translatedText}>{text}</p>
+    <p>
+      Summarized version of your message
+    </p>
+  </div>
+);
