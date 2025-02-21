@@ -152,7 +152,7 @@ form > button:focus{
 }
 
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 840px) {
     .header{
         padding: 0 1rem;
     }
@@ -175,7 +175,7 @@ form > button:focus{
     .inputArea textarea{
         height: 3.5rem;
         width: 100%;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: 400;
         padding: 1rem;
     }
@@ -197,7 +197,7 @@ form > button:focus{
         font-weight: 500;
     }
     .displayArea{
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         width: 95%;
         border-radius: 5px;
         padding: .5rem 0;
@@ -210,7 +210,7 @@ form > button:focus{
         padding: 0rem .8rem;
     }
     .languageDetect{
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         font-weight: 300;
         padding: 0rem .8rem;
         margin: .3rem 0;
@@ -218,16 +218,16 @@ form > button:focus{
     .translateArea{
         padding: 0rem .8rem;
         gap: 4rem;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         margin-top: 1.2rem;
     }
 
     .translateArea > p:nth-of-type(1){
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
 
     .translateArea > select{
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         border: none;
         padding: 0 .5rem;
     }
@@ -236,7 +236,7 @@ form > button:focus{
         margin-bottom: 2rem;
     }
     .translateTextArea > p:nth-of-type(2){
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         color: var(--chat-puprle);
     }
     .translateTextArea > .translatedText{
